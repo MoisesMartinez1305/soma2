@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .header { display: flex; align-items: center; border-bottom: 2px solid #003366; margin-bottom: 20px; }
+        .logo { height: 60px; margin-right: 20px; }
+        .title { color: #003366; font-size: 2rem; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #bbb; padding: 8px; text-align: left; }
+    td { font-size: 0.72em; }
+        th { background: #003366; color: #fff; }
+        .footer { margin-top: 40px; font-size: 0.9rem; color: #888; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{ url_logo }}" class="logo">
+        <div class="title">Asignaciones de Trabajo</div>
+    </div>
+    {% set dias_semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'] %}
+    <div><strong>Fecha:</strong> {{ dias_semana[fecha.weekday()] }} {{ fecha.strftime('%d/%m/%Y') }}</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Empresa</th>
+                <th>Supervisor</th>
+                <th>Detalles</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asignacion in asignaciones_hoy %}
+            <tr>
+                <td>{{ asignacion.empleado.nombre }} {{ asignacion.empleado.apellido_paterno }}</td>
+                <td>{{ asignacion.empresa.nombre }}</td>
+                <td>{{ asignacion.supervisor.nombre }} {{ asignacion.supervisor.apellido_paterno }}</td>
+                <td>{{ asignacion.detalles }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="footer">
+        Generado por Servicios Industriales SOMA
+    </div>
+</body>
+</html>

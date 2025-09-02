@@ -1,0 +1,61 @@
+/* Estilos elegantes para la tabla de vehículos */
+.table-vehiculos {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    overflow: hidden;
+    font-size: 1.05rem;
+}
+.table-vehiculos thead {
+    background: linear-gradient(90deg, #001f3f 60%, #0074D9 100%);
+    color: #fff;
+}
+.table-vehiculos th, .table-vehiculos td {
+    vertical-align: middle;
+    padding: 0.85rem 1rem;
+    border: none;
+}
+.table-vehiculos tbody tr {
+    transition: background 0.2s;
+}
+.table-vehiculos tbody tr:hover {
+    background: #f0f6fa;
+}
+.table-vehiculos .badge {
+    font-size: 0.95rem;
+    padding: 0.5em 1em;
+    border-radius: 1em;
+}
+.table-vehiculos .icon {
+    font-size: 1.2rem;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}
+.table-vehiculos .btn {
+    margin-right: 0.2em;
+}
+@media (max-width: 768px) {
+    .table-vehiculos th, .table-vehiculos td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.98rem;
+    }
+}
+/* Colores personalizados para botones en vehículos */
+.btn-navy {
+    background-color: #001f3f !important;
+    color: #fff !important;
+    border: none !important;
+}
+.btn-navy:hover, .btn-navy:focus {
+    background-color: #001537 !important;
+    color: #fff !important;
+}
+.btn-cancel-red {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    border: none !important;
+}
+.btn-cancel-red:hover, .btn-cancel-red:focus {
+    background-color: #a71d2a !important;
+    color: #fff !important;
+}

@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% block title %}Ubicaciones{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  .mini-map {
+    width: 320px;
+    height: 220px;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .map-locate-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #007bff;
+    color: #007bff;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .map-locate-btn:hover {
+    background: #e3f2fd;
+  }
+  .mini-map-container {
+    position: relative;
+    display: inline-block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Ubicaciones de {{ current_user.es_administrador and 'todos los empleados' or 'mi historial' }}</h2>
+
+<form method="get" class="mb-4 d-flex align-items-center gap-2">
+  <label for="fecha" class="form-label mb-0">Ver registros del día:</label>
+  <input type="date" id="fecha" name="fecha" class="form-control" value="{{ fecha.strftime('%Y-%m-%d') }}" style="max-width: 200px;">
+  <button type="submit" class="btn btn-primary">Filtrar</button>
+  <a href="{{ url_for('ubicaciones.list_ubicaciones') }}" class="btn btn-secondary">Borrar filtro</a>
+</form>
+
+{% if current_user.is_authenticated %}
+<div class="mb-4 text-end">
+  <a href="{{ url_for('ubicaciones.registrar_ubicacion') }}" class="btn btn-success btn-lg shadow-sm">
+    <i class="bi bi-geo-alt-fill me-2"></i> Registrar Ubicación
+  </a>
+</div>
+{% endif %}
+
+{% if current_user.es_administrador %}
+<form method="post" action="{{ url_for('ubicaciones.borrar_todas_ubicaciones') }}" onsubmit="return confirm('¿Estás seguro de borrar TODAS las ubicaciones? Esta acción no se puede deshacer.');" class="mb-3">
+  <button type="submit" class="btn btn-danger">Borrar todas las ubicaciones</button>
+</form>
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card card-body mb-2">
+      <h5 class="mb-2">Entradas</h5>
+      <p><b>{{ total_empleados - empleados_faltan_entrada|length }}</b> empleados ya registraron entrada.</p>
+      <p><b>{{ empleados_faltan_entrada|length }}</b> empleados faltan por registrar entrada.</p>
+      <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#faltan-entrada" aria-expanded="false" aria-controls="faltan-entrada">Ver empleados que faltan</button>
+      <div class="collapse mt-2" id="faltan-entrada">
+        <ul class="list-group">
+          {% for e in empleados_faltan_entrada %}
+          <li class="list-group-item">{{ e.nombre }} {{ e.apellido_paterno }}</li>
+          {% else %}
+          <li class="list-group-item">Todos han registrado entrada.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card card-body mb-2">
+      <h5 class="mb-2">Salidas</h5>
+      <p><b>{{ total_empleados - empleados_faltan_salida|length }}</b> empleados ya registraron salida.</p>
+      <p><b>{{ empleados_faltan_salida|length }}</b> empleados faltan por registrar salida.</p>
+      <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#faltan-salida" aria-expanded="false" aria-controls="faltan-salida">Ver empleados que faltan</button>
+      <div class="collapse mt-2" id="faltan-salida">
+        <ul class="list-group">
+          {% for e in empleados_faltan_salida %}
+          <li class="list-group-item">{{ e.nombre }} {{ e.apellido_paterno }}</li>
+          {% else %}
+          <li class="list-group-item">Todos han registrado salida.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="mb-3 d-flex gap-2">
+  <button id="btn-entradas" class="btn btn-outline-primary active" type="button">Entradas</button>
+  <button id="btn-salidas" class="btn btn-outline-primary" type="button">Salidas</button>
+</div>
+<div id="tabla-entradas">
+  <h4 class="mb-2">Entradas</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          {% if current_user.es_administrador %}<th>Empleado</th>{% endif %}
+          <th>Fecha y Hora</th>
+          <th>Ubicación</th>
+          <th>Mapa</th>
+        </tr>
+      </thead>
+      <tbody>
+  {% for ubicacion in entradas|reverse %}
+        <tr>
+          {% if current_user.es_administrador %}
+          <td>{{ ubicacion.ubicacion_empleado.nombre }} {{ ubicacion.ubicacion_empleado.apellido_paterno }}</td>
+          {% endif %}
+          <td>{{ ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'][ubicacion.fecha_hora.weekday()] }} {{ ubicacion.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>Lat: {{ ubicacion.latitud }}, Lng: {{ ubicacion.longitud }}</td>
+          <td>
+            <div class="mini-map-container">
+              <div id="mapentrada{{ loop.index }}" class="mini-map"></div>
+              <button class="map-locate-btn" type="button" title="Centrar ubicación" onclick="centerMap('entrada', {{ loop.index }}, {{ ubicacion.latitud }}, {{ ubicacion.longitud }})">
+                <i class="bi bi-geo-alt-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center">Sin registros</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="tabla-salidas" style="display:none;">
+  <h4 class="mb-2">Salidas</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          {% if current_user.es_administrador %}<th>Empleado</th>{% endif %}
+          <th>Fecha y Hora</th>
+          <th>Ubicación</th>
+          <th>Mapa</th>
+        </tr>
+      </thead>
+      <tbody>
+  {% for ubicacion in salidas|reverse %}
+        <tr>
+          {% if current_user.es_administrador %}
+          <td>{{ ubicacion.ubicacion_empleado.nombre }} {{ ubicacion.ubicacion_empleado.apellido_paterno }}</td>
+          {% endif %}
+          <td>{{ ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'][ubicacion.fecha_hora.weekday()] }} {{ ubicacion.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>Lat: {{ ubicacion.latitud }}, Lng: {{ ubicacion.longitud }}</td>
+          <td>
+            <div class="mini-map-container">
+              <div id="mapsalida{{ loop.index }}" class="mini-map"></div>
+              <button class="map-locate-btn" type="button" title="Centrar ubicación" onclick="centerMap('salida', {{ loop.index }}, {{ ubicacion.latitud }}, {{ ubicacion.longitud }})">
+                <i class="bi bi-geo-alt-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center">Sin registros</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Guardar referencias a los mapas para centrar
+  var mapsEntrada = {};
+  var mapsSalida = {};
+  document.addEventListener('DOMContentLoaded', function() {
+    // Botones para alternar tablas
+    const btnEntradas = document.getElementById('btn-entradas');
+    const btnSalidas = document.getElementById('btn-salidas');
+    const tablaEntradas = document.getElementById('tabla-entradas');
+    const tablaSalidas = document.getElementById('tabla-salidas');
+    btnEntradas.addEventListener('click', function() {
+      btnEntradas.classList.add('active');
+      btnSalidas.classList.remove('active');
+      tablaEntradas.style.display = '';
+      tablaSalidas.style.display = 'none';
+    });
+    btnSalidas.addEventListener('click', function() {
+      btnSalidas.classList.add('active');
+      btnEntradas.classList.remove('active');
+      tablaSalidas.style.display = '';
+      tablaEntradas.style.display = 'none';
+      // Forzar redimensionamiento de los mapas de salidas
+      setTimeout(function() {
+        Object.values(mapsSalida).forEach(function(map) {
+          map.invalidateSize();
+        });
+      }, 100);
+    });
+    // Entradas
+    {% for ubicacion in entradas %}
+      var mapentrada{{ loop.index }} = L.map('mapentrada{{ loop.index }}', {
+        center: [{{ ubicacion.latitud }}, {{ ubicacion.longitud }}],
+        zoom: 17,
+        minZoom: 2,
+        maxZoom: 19,
+        zoomControl: true,
+        attributionControl: false
+      });
+      L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        minZoom: 2,
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      }).addTo(mapentrada{{ loop.index }});
+      var marker = L.marker([{{ ubicacion.latitud }}, {{ ubicacion.longitud }}]).addTo(mapentrada{{ loop.index }});
+      marker.bindPopup(`
+        <b>{% if current_user.es_administrador %}{{ ubicacion.ubicacion_empleado.nombre }} {{ ubicacion.ubicacion_empleado.apellido_paterno }}<br>{% endif %}
+        Entrada<br>
+  {{ ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'][ubicacion.fecha_hora.weekday()] }} {{ ubicacion.fecha_hora.strftime('%d/%m/%Y %H:%M') }}<br>
+        Lat: {{ ubicacion.latitud }}<br>
+        Lng: {{ ubicacion.longitud }}
+        `);
+      mapsEntrada[{{ loop.index }}] = mapentrada{{ loop.index }};
+    {% endfor %}
+    // Salidas
+    {% for ubicacion in salidas %}
+      var mapsalida{{ loop.index }} = L.map('mapsalida{{ loop.index }}', {
+        center: [{{ ubicacion.latitud }}, {{ ubicacion.longitud }}],
+        zoom: 17,
+        minZoom: 2,
+        maxZoom: 19,
+        zoomControl: true,
+        attributionControl: false
+      });
+      L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        minZoom: 2,
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      }).addTo(mapsalida{{ loop.index }});
+      var marker = L.marker([{{ ubicacion.latitud }}, {{ ubicacion.longitud }}]).addTo(mapsalida{{ loop.index }});
+      marker.bindPopup(`
+        <b>{% if current_user.es_administrador %}{{ ubicacion.ubicacion_empleado.nombre }} {{ ubicacion.ubicacion_empleado.apellido_paterno }}<br>{% endif %}
+        Salida<br>
+  {{ ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'][ubicacion.fecha_hora.weekday()] }} {{ ubicacion.fecha_hora.strftime('%d/%m/%Y %H:%M') }}<br>
+        Lat: {{ ubicacion.latitud }}<br>
+        Lng: {{ ubicacion.longitud }}
+        `);
+      mapsSalida[{{ loop.index }}] = mapsalida{{ loop.index }};
+    {% endfor %}
+  });
+
+  // Función para centrar el mapa en la ubicación registrada
+  function centerMap(tipo, idx, lat, lng) {
+    if (tipo === 'entrada' && mapsEntrada[idx]) {
+      mapsEntrada[idx].setView([lat, lng], 17, {animate: true});
+    } else if (tipo === 'salida' && mapsSalida[idx]) {
+      mapsSalida[idx].setView([lat, lng], 17, {animate: true});
+    }
+  }
+</script>
+{% endblock %}

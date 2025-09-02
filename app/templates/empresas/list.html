@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/empresas.css') }}">
+{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Empresas Cliente</h2>
+    {% if current_user.es_administrador %}
+    <a href="{{ url_for('empresas.create_empresa') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nueva Empresa
+    </a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-empresas table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th><i class="bi bi-building"></i> Nombre</th>
+                        <th><i class="bi bi-person"></i> Contacto</th>
+                        <th><i class="bi bi-telephone"></i> Teléfono</th>
+                        <th><i class="bi bi-geo-alt"></i> Dirección</th>
+                        {% if current_user.es_administrador %}
+                        <th><i class="bi bi-gear"></i> Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empresa in empresas %}
+                    <tr>
+                        <td><strong>{{ empresa.nombre }}</strong></td>
+                        <td>{{ empresa.contacto or 'No especificado' }}</td>
+                        <td>{{ empresa.telefono or 'No especificado' }}</td>
+                        <td>{{ empresa.direccion or 'No especificada' }}</td>
+                        {% if current_user.es_administrador %}
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('empresas.edit_empresa', id=empresa.id) }}" 
+                                   class="btn btn-warning" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('empresas.delete_empresa', id=empresa.id) }}" 
+                                   class="btn btn-danger" 
+                                   title="Eliminar"
+                                   onclick="return confirm('¿Estás seguro de que deseas eliminar esta empresa? Esta acción no se puede deshacer.')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{% if current_user.es_administrador %}5{% else %}4{% endif %}" class="text-center text-muted py-4">
+                            <i class="bi bi-building-x" style="font-size: 2rem;"></i>
+                            <p class="mt-2">No hay empresas registradas</p>
+                            {% if current_user.es_administrador %}
+                            <a href="{{ url_for('empresas.create_empresa') }}" class="btn btn-primary mt-2">
+                                Agregar primera empresa
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Confirmación para eliminar
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.btn-danger');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('¿Estás seguro de que deseas eliminar esta empresa?')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

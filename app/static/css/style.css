@@ -1,0 +1,90 @@
+body {
+    background-color: #ffffff;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgb(0, 0, 0);
+    border: 6px solid rgb(255, 255, 255);
+    box-shadow: 0 0 20px 4px rgb(163, 163, 163), 0 0.125rem 0.25rem rgb(0, 0, 0);
+}
+
+.card .btn {
+    background-color: rgb(255, 136, 0);
+    border-color: orange;
+    color: #00274e;
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    color: #00274e;
+    border-color: rgb(255, 136, 0);
+    border-width: 6px;
+}
+.card-body {
+    background-color: #b6b6b6;
+    color: #00274e;
+}
+
+
+
+
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+.btn {
+    border-radius: 0.25rem;
+}
+
+.alert {
+    border-radius: 0.25rem;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+/* Estilos para la página de registro de ubicación */
+#ubicacion-info {
+    transition: all 0.3s ease;
+}
+
+/* Botón entrada: azul marino */
+.btn-entrada {
+    background-color: #00274e !important;
+    border-color: #00274e !important;
+    color: #fff !important;
+}
+
+/* Botón salida: naranja */
+.btn-salida {
+    background-color: #ff8800 !important;
+    border-color: #ff9800 !important;
+    color: #fff !important;
+}
+
+/* Botón volver: gris claro */
+.btn-volver {
+    background-color: #e0e0e0 !important;
+    border-color: #e0e0e0 !important;
+    color: #333 !important;
+}
+
+/* Estilos para las tablas */
+.table-responsive {
+    border-radius: 0.25rem;
+}
+
+/* Estilos para los formularios */
+.form-label {
+    font-weight: 500;
+}
+
+/* Estilos para los botones de acción */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}

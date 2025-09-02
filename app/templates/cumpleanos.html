@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cumpleanos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-navy text-white">
+      <h4 class="mb-0">🎉 Próximos Cumpleaños</h4>
+    </div>
+    <div class="card-body">
+      <form method="get" class="mb-3 d-flex align-items-center justify-content-end">
+        <label for="orden" class="me-2 fw-bold">Ordenar por:</label>
+        <select name="orden" id="orden" class="form-select form-select-sm w-auto me-2" onchange="this.form.submit()">
+          <option value="proximo" {% if request.args.get('orden', 'proximo') == 'proximo' %}selected{% endif %}>Cumpleaños más próximo</option>
+          <option value="ultimo" {% if request.args.get('orden') == 'ultimo' %}selected{% endif %}>Cumpleaños al último</option>
+        </select>
+      </form>
+      {% if empleados_cumple and empleados_cumple|length > 0 %}
+      <div class="table-responsive">
+        <table class="table table-cumpleanos">
+          <thead>
+            <tr>
+              <th><i class="bi bi-person"></i> Empleado</th>
+              <th><i class="bi bi-calendar"></i> Fecha</th>
+              <th><i class="bi bi-hourglass-split"></i> Días faltantes</th>
+              <th><i class="bi bi-briefcase"></i> Puesto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set dias_semana = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'] %}
+            {% for item in empleados_cumple %}
+            <tr class="{% if loop.first %}cumple-proximo{% endif %}">
+              <td>
+                <a href="{{ url_for('empleados.detail_empleado', id=item.empleado.id) }}" class="text-navy fw-bold text-decoration-none">
+                  {{ item.empleado.nombre }} {{ item.empleado.apellido_paterno }}
+                </a>
+              </td>
+              <td>{{ dias_semana[item.fecha_cumple.weekday()] }} {{ item.fecha_cumple.strftime('%d/%m/%Y') }}</td>
+              <td>
+                {% if item.dias_faltantes == 0 %}
+                  <span class="badge bg-cumple-hoy ms-2">¡Hoy!</span>
+                {% elif item.dias_faltantes <= 30 %}
+                  <span class="badge bg-cumple-proximo ms-2">{{ item.dias_faltantes }}d</span>
+                {% else %}
+                  <span class="badge bg-cumple-lejano ms-2">{{ item.dias_faltantes }}d</span>
+                {% endif %}
+              </td>
+              <td>{{ item.empleado.puesto }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center text-muted py-3">
+        <i class="bi bi-gift" style="font-size: 2rem;"></i>
+        <p class="mt-2">No hay cumpleaños en los próximos 30 días</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

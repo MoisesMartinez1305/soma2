@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/asignaciones.css') }}">
+{% endblock %}
+{% block content %}
+<h2>Asignaciones de Trabajo</h2>
+<br>
+<a href="{{ url_for('main.exportar_asignaciones_pdf', fecha=fecha_actual) }}" class="btn btn-danger btn-sm d-print-none">
+                <i class="bi bi-file-earmark-pdf"></i> Exportar a PDF
+            </a>
+        </br>
+<div class="mb-3">
+    <a href="{{ url_for('asignaciones.create_asignacion') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nueva Asignación
+    </a>
+    
+    <div class="btn-group ms-2">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-funnel"></i> Filtrar por fecha
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('asignaciones.list_asignaciones', filtro='hoy') }}">Hoy</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('asignaciones.list_asignaciones', filtro='semana') }}">Esta semana</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('asignaciones.list_asignaciones', filtro='mes') }}">Este mes</a></li>
+            <li>
+                <form class="px-3 py-2" method="get" action="{{ url_for('asignaciones.list_asignaciones') }}" style="min-width:180px;">
+                    <input type="hidden" name="filtro" value="fecha">
+                    <div class="input-group input-group-sm">
+                        <input type="date" class="form-control" name="fecha_especifica" required>
+                        <button class="btn btn-primary btn-sm ms-1" type="submit"><i class="bi bi-search"></i></button>
+                    </div>
+                </form>
+            </li>
+        </ul>
+    </div>
+    {% if request.args.get('filtro') %}
+    <a href="{{ url_for('asignaciones.list_asignaciones') }}" class="btn btn-outline-danger ms-2">
+        <i class="bi bi-x-circle"></i> Borrar filtros
+    </a>
+    {% endif %}
+</div>
+
+<div class="table-responsive">
+    <table class="table table-asignaciones table-hover">
+        <thead>
+            <tr>
+                <th><i class="bi bi-calendar"></i> Fecha</th>
+                <th><i class="bi bi-person"></i> Empleado</th>
+                <th><i class="bi bi-building"></i> Empresa</th>
+                <th><i class="bi bi-person-badge"></i> Supervisor</th>
+                <th><i class="bi bi-card-text"></i> Detalles</th>
+                <th><i class="bi bi-gear"></i> Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asignacion in asignaciones %}
+            <tr>
+                <td>{{ asignacion.fecha.strftime('%d/%m/%Y') }}</td>
+                <td>{{ asignacion.empleado.nombre }} {{ asignacion.empleado.apellido_paterno }}</td>
+                <td>{{ asignacion.empresa.nombre }}</td>
+                <td>{{ asignacion.supervisor.nombre }} {{ asignacion.supervisor.apellido_paterno }}</td>
+                <td>{{ asignacion.detalles }}</td>
+                <td>
+                    
+                    {% if current_user.es_administrador %}
+                    <a href="{{ url_for('asignaciones.edit_asignacion', id=asignacion.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="{{ url_for('asignaciones.delete_asignacion', id=asignacion.id) }}" class="btn btn-sm btn-danger">Eliminar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

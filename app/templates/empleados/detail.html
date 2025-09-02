@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-white border-0 d-flex align-items-center">
+                <i class="bi bi-person-circle fs-1 me-3 text-primary"></i>
+                <div>
+                    <h3 class="mb-0">{{ empleado.nombre }} {{ empleado.apellido_paterno }} {{ empleado.apellido_materno }}</h3>
+                    <span class="text-muted">{{ empleado.puesto }}</span>
+                </div>
+                <div class="ms-auto">
+                    <a href="{{ url_for('empleados.list_empleados') }}" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left"></i> Regresar</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="bi bi-telephone-fill me-2 text-info"></i>
+                        <span class="fw-bold me-2">Teléfono:</span> {{ empleado.telefono }}
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="bi bi-gender-ambiguous me-2 text-info"></i>
+                        <span class="fw-bold me-2">Sexo:</span>
+                        {% if empleado.sexo == 'M' %}<span>Masculino</span>{% elif empleado.sexo == 'F' %}<span>Femenino</span>{% else %}<span>No especificado</span>{% endif %}
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="bi bi-cake2-fill me-2 text-warning"></i>
+                        <span class="fw-bold me-2">Fecha Nacimiento:</span> {{ empleado.fecha_nacimiento.strftime('%d/%m/%Y') }} <span class="ms-2 text-muted">({{ empleado.edad() }} años)</span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="bi bi-calendar-check-fill me-2 text-success"></i>
+                        <span class="fw-bold me-2">Fecha Ingreso:</span> {{ empleado.fecha_ingreso.strftime('%d/%m/%Y') }} <span class="ms-2 text-muted">({{ empleado.dias_trabajando() }})</span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="bi bi-person-badge-fill me-2 text-primary"></i>
+                        <span class="fw-bold me-2">Estatus:</span>
+                        <span class="badge bg-{% if empleado.estatus == 'Activo' %}success{% else %}danger{% endif %}">
+                            {{ empleado.estatus }}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="bi bi-person-lines-fill me-2 text-secondary"></i>
+                        <span class="fw-bold me-2">Supervisor:</span>
+                        {% if empleado.supervisor %}
+                            {{ empleado.supervisor.nombre }} {{ empleado.supervisor.apellido_paterno }}
+                        {% else %}
+                            <span class="text-muted">No asignado</span>
+                        {% endif %}
+                    </li>
+                    {% if empleado.es_supervisor %}
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="bi bi-truck-front-fill me-2 text-dark"></i>
+                        <span class="fw-bold me-2">Vehículo Asignado:</span>
+                        {% if empleado.vehiculo %}
+                            {{ empleado.vehiculo.marca }} {{ empleado.vehiculo.modelo }} ({{ empleado.vehiculo.placas }})
+                        {% else %}
+                            <span class="text-muted">No asignado</span>
+                        {% endif %}
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow border-0">
+            <div class="card-header bg-white border-0 d-flex align-items-center">
+                <i class="bi bi-clipboard-data fs-4 me-2 text-success"></i>
+                <h5 class="mb-0">Asignaciones Recientes</h5>
+            </div>
+            <div class="card-body">
+                {% if empleado.asignaciones.count() > 0 %}
+                <ul class="list-group">
+                    {% for asignacion in empleado.asignaciones.order_by(Asignacion.fecha.desc()).limit(5).all() %}
+                    <li class="list-group-item">
+                        <i class="bi bi-calendar-event me-1 text-primary"></i> <strong>{{ asignacion.fecha.strftime('%d/%m/%Y') }}</strong><br>
+                        <i class="bi bi-building me-1 text-secondary"></i> {{ asignacion.empresa.nombre }}<br>
+                        <i class="bi bi-card-text me-1 text-muted"></i> <small>{{ asignacion.detalles }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No hay asignaciones registradas.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

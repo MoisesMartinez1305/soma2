@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/herramientas.css') }}">
+{% endblock %}
+{% block content %}
+<h2>Inventario de Herramientas</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('herramientas.create_herramienta') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nueva Herramienta
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-herramientas table-hover">
+        <thead>
+            <tr>
+                <th><i class="bi bi-tools"></i> Nombre</th>
+                <th><i class="bi bi-tags"></i> Categoría</th>
+                <th><i class="bi bi-123"></i> Cantidad</th>
+                <th><i class="bi bi-check2-circle"></i> Estatus</th>
+                <th><i class="bi bi-person"></i> Responsable</th>
+                <th><i class="bi bi-card-text"></i> Descripción</th>
+                <th><i class="bi bi-gear"></i> Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for herramienta in herramientas %}
+            <tr>
+                <td>{{ herramienta.nombre }}</td>
+                <td>{{ herramienta.categoria }}</td>
+                <td>{{ herramienta.cantidad }}</td>
+                <td>
+                    <span class="badge bg-{% if herramienta.estatus == 'Disponible' %}success{% else %}warning{% endif %}">
+                        {{ herramienta.estatus }}
+                    </span>
+                </td>
+                <td>
+                    {% if herramienta.responsable %}
+                    {{ herramienta.responsable.nombre }} {{ herramienta.responsable.apellido_paterno }}
+                    {% else %}
+                    Bodega
+                    {% endif %}
+                </td>
+                <td>{{ herramienta.descripcion }}</td>
+                <td>
+                   
+                    {% if current_user.es_administrador %}
+                    <a href="{{ url_for('herramientas.edit_herramienta', id=herramienta.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="{{ url_for('herramientas.delete_herramienta', id=herramienta.id) }}" class="btn btn-sm btn-danger">Eliminar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

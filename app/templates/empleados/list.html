@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<h2 style="color: #001f3f;">Lista de Empleados</h2>
+
+<div class="row g-3">
+    <!-- Total empleados -->
+    <div class="col-md-4 col-12">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="me-3 text-primary fs-2">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <h6 class="mb-1 style="color: #001f3f;">Número total de empleados</h6>
+                    <h4 class="mb-0 fw-bold">{{ empleados|length }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empleados activos -->
+    <div class="col-md-4 col-12">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="me-3 text-success fs-2">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+                <div>
+                    <h6 class="mb-1" style="color: #001f3f;">Empleados activos</h6>
+                    <h4 class="mb-0 fw-bold">
+                        {{ empleados|selectattr('estatus', 'equalto', 'Activo')|list|length }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Género -->
+    <div class="col-md-4 col-12">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+            <div class="card-body">
+                <h6 class="mb-2 style="color: #001f3f;"><i class="bi bi-gender-ambiguous me-1"></i> Género</h6>
+                <div class="d-flex justify-content-between">
+                    <span><i class="bi bi-gender-male text-primary"></i> Hombres: 
+                        <strong>{{ empleados|selectattr('sexo', 'equalto', 'M')|list|length }}</strong>
+                    </span>
+                    <span><i class="bi bi-gender-female text-danger"></i> Mujeres: 
+                        <strong>{{ empleados|selectattr('sexo', 'equalto', 'F')|list|length }}</strong>
+                    </span>
+                    <span><i class="bi bi-question-circle text-secondary"></i> Indef.: 
+                        <strong>{{ empleados|rejectattr('sexo', 'equalto', 'M')|rejectattr('sexo', 'equalto', 'F')|list|length }}</strong>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive mt-4">
+    {% if current_user.es_administrador %}
+        <div class="mb-3">
+            <a class="btn btn-primary d-inline-flex align-items-center shadow rounded-pill px-4 py-2" href="{{ url_for('auth.register') }}" style="font-weight: 500; font-size: 1.1rem;">
+                <i class="bi bi-person-plus-fill me-2"></i>
+                <span>Registrar Empleado</span>
+            </a>
+        </div>
+    {% endif %}
+    <table class="table table-empleados align-middle">
+        <thead>
+            <tr>
+                <th><i class="bi bi-person-badge icon"></i>Nombre</th>
+                <th><i class="bi bi-briefcase icon"></i>Puesto</th>
+                <th><i class="bi bi-gender-ambiguous icon"></i>Sexo</th>
+                <th><i class="bi bi-telephone icon"></i>Teléfono</th>
+                <th><i class="bi bi-calendar-date icon"></i>Fecha Ingreso</th>
+                <th><i class="bi bi-hourglass-split icon"></i>Días Trabajando</th>
+                <th><i class="bi bi-activity icon"></i>Estatus</th>
+                {% if current_user.es_administrador %}
+                <th><i class="bi bi-gear icon"></i>Acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td><i class="bi bi-person-circle text-primary icon"></i>{{ empleado.nombre }} {{ empleado.apellido_paterno }} {{ empleado.apellido_materno }}</td>
+                <td><i class="bi  text-secondary icon"></i>{{ empleado.puesto }}</td>
+                <td>
+                    {% if empleado.sexo == 'M' %}
+                        <i class="bi bi-gender-male text-primary icon"></i> H
+                    {% elif empleado.sexo == 'F' %}
+                        <i class="bi bi-gender-female text-danger icon"></i> M
+                    {% else %}
+                        <i class="bi bi-question-circle text-secondary icon"></i> -I
+                    {% endif %}
+                </td>
+                <td><i class="bi  text-success icon"></i>{{ empleado.telefono }}</td>
+                <td><i class="bi  text-info icon"></i>{{ empleado.fecha_ingreso.strftime('%d/%m/%Y') }}</td>
+                <td><i class="bi  text-warning icon"></i>{{ empleado.dias_trabajando() }}</td>
+                <td>
+                    <span class="badge bg-{% if empleado.estatus == 'Activo' %}success{% else %}danger{% endif %}">
+                        <i class="bi bi-{% if empleado.estatus == 'Activo' %}check-circle-fill{% else %}x-circle-fill{% endif %} icon"></i>
+                        {{ empleado.estatus }}
+                    </span>
+                </td>
+                {% if current_user.es_administrador %}
+                <td>
+                    <a href="{{ url_for('empleados.edit_empleado', id=empleado.id) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                    <form action="{{ url_for('empleados.delete_empleado', id=empleado.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar este empleado?');">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                    <a href="{{ url_for('empleados.detail_empleado', id=empleado.id) }}" class="btn btn-sm btn-info" title="Ver"><i class="bi bi-eye"></i></a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/empleados.css') }}">
+{% endblock %}

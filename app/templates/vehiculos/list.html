@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vehiculos.css') }}">
+{% endblock %}
+{% block content %}
+<h2>Inventario de Vehículos</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('vehiculos.create_vehiculo') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nuevo Vehículo
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-vehiculos table-hover">
+        <thead>
+            <tr>
+                <th><i class="bi bi-truck"></i> Marca</th>
+                <th><i class="bi bi-card-list"></i> Modelo</th>
+                <th><i class="bi bi-calendar"></i> Año</th>
+                <th><i class="bi bi-credit-card"></i> Placas</th>
+                <th><i class="bi bi-speedometer2"></i> Kilometraje</th>
+                <th><i class="bi bi-check2-circle"></i> Estatus</th>
+                <th><i class="bi bi-person"></i> Asignado</th>
+                <th><i class="bi bi-gear"></i> Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vehiculo in vehiculos %}
+            <tr>
+                <td>{{ vehiculo.marca }}</td>
+                <td>{{ vehiculo.modelo }}</td>
+                <td>{{ vehiculo.año }}</td>
+                <td>{{ vehiculo.placas }}</td>
+                <td>{{ vehiculo.kilometraje }} km</td>
+                <td>
+                    <span class="badge bg-{% if vehiculo.estatus == 'Disponible' %}success{% else %}warning{% endif %}">
+                        {{ vehiculo.estatus }}
+                    </span>
+                </td>
+                <td>
+                    {% if vehiculo.asignado_a %}
+                    {{ vehiculo.asignado_a.nombre }} {{ vehiculo.asignado_a.apellido_paterno }}
+                    {% else %}
+                    No asignado
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="#" class="btn btn-sm btn-info">Ver</a>
+                    {% if current_user.es_administrador %}
+                    <a href="{{ url_for('vehiculos.edit_vehiculo', id=vehiculo.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="{{ url_for('vehiculos.delete_vehiculo', id=vehiculo.id) }}" class="btn btn-sm btn-danger">Eliminar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

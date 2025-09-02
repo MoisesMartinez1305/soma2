@@ -1,0 +1,94 @@
+/* Estilos elegantes para la tabla de cumpleaños */
+
+/* Colores corporativos */
+:root {
+    --navy: #003870;
+    --orange: #ff8800;
+    --light-gray: #f0f6fa;
+}
+
+.table-cumpleanos {
+    background: var(--light-gray);
+    border-radius: 1rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    overflow: hidden;
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+}
+.table-cumpleanos thead {
+    background: linear-gradient(90deg, var(--navy) 60%, var(--orange) 100%);
+    color: #fff;
+}
+.table-cumpleanos th, .table-cumpleanos td {
+    vertical-align: middle;
+    padding: 0.85rem 1rem;
+    border: none;
+}
+.table-cumpleanos tbody tr {
+    transition: background 0.2s;
+}
+.table-cumpleanos tbody tr.cumple-proximo {
+    background: #ffe5c2;
+    font-weight: bold;
+    box-shadow: 0 0 10px 2px var(--orange);
+}
+.table-cumpleanos tbody tr:hover {
+    background: #e3eaf2;
+}
+.table-cumpleanos .badge.bg-cumple-hoy {
+    background: var(--navy);
+    color: #fff;
+    font-size: 0.95rem;
+    padding: 0.5em 1em;
+    border-radius: 1em;
+}
+.table-cumpleanos .badge.bg-cumple-proximo {
+    background: var(--orange);
+    color: #fff;
+    font-size: 0.95rem;
+    padding: 0.5em 1em;
+    border-radius: 1em;
+}
+.table-cumpleanos .badge.bg-cumple-lejano {
+    background: #bfc9d1;
+    color: #333;
+    font-size: 0.95rem;
+    padding: 0.5em 1em;
+    border-radius: 1em;
+}
+.table-cumpleanos .icon {
+    font-size: 1.2rem;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}
+.bg-navy {
+    background-color: var(--navy) !important;
+    color: #fff !important;
+}
+.bg-orange {
+    background-color: var(--orange) !important;
+    color: #fff !important;
+}
+.text-navy {
+    color: var(--navy) !important;
+}
+.text-orange {
+    color: var(--orange) !important;
+}
+.text-light-gray {
+    color: var(--light-gray) !important;
+}
+
+@media (max-width: 768px) {
+    .table-cumpleanos th, .table-cumpleanos td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.98rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-cumpleanos th, .table-cumpleanos td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.98rem;
+    }
+}

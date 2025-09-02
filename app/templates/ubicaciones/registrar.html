@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Registrar Ubicación</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Importante:</strong> Para registrar tu ubicación, debes permitir el acceso a tu ubicación en el navegador.
+                </div>
+                
+                {% if entrada_registrada and salida_registrada %}
+                <div class="alert alert-success text-center my-3">
+                    <i class="bi bi-check-circle-fill"></i> Tus ubicaciones de hoy ya han sido registradas con éxito
+                </div>
+                {% elif entrada_registrada %}
+                <div class="alert alert-success text-center my-3">
+                    <i class="bi bi-check-circle-fill"></i> Ubicación de entrada registrada correctamente.
+                </div>
+                {% elif salida_registrada %}
+                <div class="alert alert-success text-center my-3">
+                    <i class="bi bi-check-circle-fill"></i> Ubicación de salida registrada correctamente.
+                </div>
+                {% endif %}
+                <div class="d-grid gap-2">
+                        <button id="btn-entrada" class="btn btn-entrada btn-lg" {% if entrada_registrada %}disabled{% endif %}>
+                        {% if entrada_registrada %}
+                        <i class="bi bi-check-circle-fill"></i> Entrada Registrada
+                        {% else %}
+                            <i class="bi bi-geo-alt-fill"></i> Registrar Entrada
+                        {% endif %}
+                    </button>
+                        <button id="btn-salida" class="btn btn-salida btn-lg" {% if not entrada_registrada or salida_registrada %}disabled{% endif %}>
+                        {% if salida_registrada %}
+                        <i class="bi bi-check-circle-fill"></i> Salida Registrada
+                        {% else %}
+                            <i class="bi bi-geo-alt-fill"></i> Registrar Salida
+                        {% endif %}
+                    </button>
+                        <a href="{{ url_for('ubicaciones.list_ubicaciones') }}" class="btn btn-volver btn-lg mt-2">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                </div>
+                
+                <div id="ubicacion-info" class="mt-3 p-3 bg-light rounded d-none">
+                    <h5>Información de Ubicación</h5>
+                    <div id="map-preview" style="width: 100%; height: 220px; border-radius: 10px; margin-bottom: 1rem; display: none;"></div>
+                    <p id="coordenadas"></p>
+                    <p id="fecha-hora"></p>
+                    <p id="estado"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnEntrada = document.getElementById('btn-entrada');
+    const btnSalida = document.getElementById('btn-salida');
+    const infoUbicacion = document.getElementById('ubicacion-info');
+    const coordenadas = document.getElementById('coordenadas');
+    const fechaHora = document.getElementById('fecha-hora');
+    const estado = document.getElementById('estado');
+    const mapPreviewDiv = document.getElementById('map-preview');
+    let mapPreview = null;
+
+    function mostrarMapa(lat, lng, accuracy) {
+        mapPreviewDiv.style.display = 'block';
+        if (mapPreview) {
+            mapPreview.remove();
+        }
+        mapPreview = L.map('map-preview', {
+            center: [lat, lng],
+            zoom: 16,
+            zoomControl: false,
+            attributionControl: false,
+            dragging: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            boxZoom: false,
+            keyboard: false,
+            tap: false,
+        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(mapPreview);
+        var marker = L.marker([lat, lng]).addTo(mapPreview);
+        marker.bindPopup(`<b>Tu ubicación actual</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+        if (accuracy && accuracy > 0) {
+            L.circle([lat, lng], {radius: accuracy, color: '#007bff', fillColor: '#007bff', fillOpacity: 0.15}).addTo(mapPreview);
+        }
+    }
+
+    function mostrarAlerta(mensaje, tipo = 'danger', arriba = false) {
+        // Eliminar alerta previa si existe
+        let alerta = document.getElementById('alerta-ubicacion');
+        if (alerta) alerta.remove();
+        alerta = document.createElement('div');
+        alerta.id = 'alerta-ubicacion';
+        alerta.className = 'alert alert-' + tipo + ' mt-3';
+        alerta.textContent = mensaje;
+        if (arriba) {
+            document.querySelector('.card-body').insertBefore(alerta, document.querySelector('.d-grid'));
+        } else {
+            document.querySelector('.card-body').insertBefore(alerta, document.getElementById('ubicacion-info'));
+        }
+        alerta.style.display = 'block';
+    }
+
+    function mostrarExitoArriba(mensaje) {
+        let alertaExito = document.getElementById('alerta-exito');
+        if (alertaExito) {
+            alertaExito.innerHTML = '<i class="bi bi-check-circle-fill"></i> ' + mensaje;
+            alertaExito.style.display = 'block';
+        }
+    }
+
+    function registrarUbicacion(tipo) {
+        estado.textContent = 'Obteniendo ubicación...';
+        infoUbicacion.classList.remove('d-none');
+
+        if (!navigator.geolocation) {
+            mostrarAlerta('La geolocalización no es compatible con este navegador.');
+            estado.textContent = 'La geolocalización no es compatible con este navegador.';
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+                const timestamp = new Date(position.timestamp);
+
+                coordenadas.textContent = `Latitud: ${lat.toFixed(6)}, Longitud: ${lng.toFixed(6)}`;
+                fechaHora.textContent = `Hora: ${timestamp.toLocaleString()}`;
+                mostrarMapa(lat, lng, accuracy);
+                estado.textContent = 'Enviando información al servidor...';
+
+                // Enviar datos al servidor, incluyendo la hora local ISO
+                fetch('{{ url_for("ubicaciones.registrar_ubicacion") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        latitud: lat,
+                        longitud: lng,
+                        tipo: tipo,
+                        fecha_hora_local: timestamp.toISOString()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        mostrarAlerta(data.error, 'warning');
+                        estado.textContent = data.error;
+                        if (tipo === 'entrada') {
+                            if (btnEntrada) btnEntrada.disabled = true;
+                            if (btnSalida) btnSalida.disabled = false;
+                        } else if (tipo === 'salida') {
+                            if (btnSalida) btnSalida.disabled = true;
+                        }
+                    } else {
+                        if (tipo === 'entrada') {
+                            if (btnEntrada) {
+                                btnEntrada.disabled = true;
+                                btnEntrada.innerHTML = '<i class="bi bi-check-circle-fill"></i> Entrada Registrada';
+                            }
+                            if (btnSalida) {
+                                btnSalida.disabled = false;
+                                btnSalida.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Registrar Salida';
+                            }
+                            mostrarAlerta('Ubicación de entrada registrada correctamente.', 'success', true);
+                        } else if (tipo === 'salida') {
+                            if (btnSalida) {
+                                btnSalida.disabled = true;
+                                btnSalida.innerHTML = '<i class="bi bi-check-circle-fill"></i> Salida Registrada';
+                            }
+                            mostrarAlerta('Ubicación de salida registrada correctamente.', 'success', true);
+                        }
+                        estado.textContent = 'Ubicación registrada correctamente.';
+                        // No recargar, solo mostrar el mensaje y actualizar botones
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarAlerta('Error al registrar la ubicación.');
+                    estado.textContent = 'Error al registrar la ubicación.';
+                });
+            },
+            function(error) {
+                let errorMsg;
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg = "Permiso de ubicación denegado.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg = "Información de ubicación no disponible.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg = "Tiempo de espera para obtener la ubicación agotado.";
+                        break;
+                    default:
+                        errorMsg = "Error desconocido al obtener la ubicación.";
+                }
+                mostrarAlerta(errorMsg);
+                estado.textContent = errorMsg;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    if (btnEntrada) {
+        btnEntrada.addEventListener('click', function() {
+            registrarUbicacion('entrada');
+        });
+    }
+
+    if (btnSalida) {
+        btnSalida.addEventListener('click', function() {
+            registrarUbicacion('salida');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Registrar Nuevo Empleado</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.nombre.label(class="form-label") }}
+                            {{ form.nombre(class="form-control text-uppercase", id="nombre-input", style="text-transform:uppercase;") }}
+                            {% for error in form.nombre.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.apellido_paterno.label(class="form-label") }}
+                            {{ form.apellido_paterno(class="form-control text-uppercase", id="apellido-paterno-input", style="text-transform:uppercase;") }}
+                            {% for error in form.apellido_paterno.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.apellido_materno.label(class="form-label") }}
+                            {{ form.apellido_materno(class="form-control text-uppercase", id="apellido-materno-input", style="text-transform:uppercase;") }}
+{% block scripts %}
+{{ super() }}
+<script>
+    function toUpperCaseInput(e) {
+        e.target.value = e.target.value.toUpperCase();
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('nombre-input').addEventListener('input', toUpperCaseInput);
+        document.getElementById('apellido-paterno-input').addEventListener('input', toUpperCaseInput);
+        document.getElementById('apellido-materno-input').addEventListener('input', toUpperCaseInput);
+    });
+</script>
+{% endblock %}
+                            {% for error in form.apellido_materno.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.fecha_nacimiento.label(class="form-label") }}
+                            {{ form.fecha_nacimiento(class="form-control", id="fecha-nacimiento-input", type="date") }}
+                            {% for error in form.fecha_nacimiento.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.fecha_ingreso.label(class="form-label") }}
+                            {{ form.fecha_ingreso(class="form-control", type="date") }}
+                            {% for error in form.fecha_ingreso.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.sexo.label(class="form-label") }}
+                            {{ form.sexo(class="form-select") }}
+                            {% for error in form.sexo.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Agregar campo teléfono -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.telefono.label(class="form-label") }}
+                                {{ form.telefono(class="form-control", placeholder="10 dígitos") }}
+                                {% for error in form.telefono.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.puesto.label(class="form-label") }}
+                            {{ form.puesto(class="form-select") }}
+                            {% for error in form.puesto.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4 pt-3">
+                                {{ form.es_supervisor(class="form-check-input") }}
+                                {{ form.es_supervisor.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control") }}
+                            {% for error in form.username.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control") }}
+                            {% for error in form.password.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.password2.label(class="form-label") }}
+                            {{ form.password2(class="form-control") }}
+                            {% for error in form.password2.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{{ url_for('empleados.list_empleados') }}" class="btn btn-secondary">Cancelar</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

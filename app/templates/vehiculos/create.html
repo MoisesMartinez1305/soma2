@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Nuevo Vehículo</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('vehiculos.create_vehiculo') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.marca.label(class="form-label") }}
+                            {{ form.marca(class="form-control") }}
+                            {% for error in form.marca.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.modelo.label(class="form-label") }}
+                            {{ form.modelo(class="form-control") }}
+                            {% for error in form.modelo.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.año.label(class="form-label") }}
+                            {{ form.año(class="form-control", type="number", min="1990", max="2023") }}
+                            {% for error in form.año.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.placas.label(class="form-label") }}
+                            {{ form.placas(class="form-control") }}
+                            {% for error in form.placas.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.kilometraje.label(class="form-label") }}
+                            {{ form.kilometraje(class="form-control", type="number", min="0") }}
+                            {% for error in form.kilometraje.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.estatus.label(class="form-label") }}
+                            {{ form.estatus(class="form-select") }}
+                            {% for error in form.estatus.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.asignado_id.label(class="form-label") }}
+                            {{ form.asignado_id(class="form-select") }}
+                            {% for error in form.asignado_id.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <link rel="stylesheet" href="{{ url_for('static', filename='css/vehiculos.css') }}">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                         <a href="{{ url_for('vehiculos.list_vehiculos') }}" class="btn btn-cancel-red">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </a>
+                        {{ form.submit(class="btn btn-navy me-2") }}
+                       
+                    </div>
+                </form>
+            </div>
+</div>
+{% endblock %}

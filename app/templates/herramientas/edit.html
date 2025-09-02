@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Editar Herramienta: {{ herramienta.nombre }}</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('herramientas.edit_herramienta', id=herramienta.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.nombre.label(class="form-label") }}
+                            {{ form.nombre(class="form-control") }}
+                            {% for error in form.nombre.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.categoria.label(class="form-label") }}
+                            {{ form.categoria(class="form-select") }}
+                            {% for error in form.categoria.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.cantidad.label(class="form-label") }}
+                            {{ form.cantidad(class="form-control", type="number", min="1") }}
+                            {% for error in form.cantidad.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.estatus.label(class="form-label") }}
+                            {{ form.estatus(class="form-select") }}
+                            {% for error in form.estatus.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            {{ form.descripcion.label(class="form-label") }}
+                            {{ form.descripcion(class="form-control", rows="3") }}
+                            {% for error in form.descripcion.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.responsable_id.label(class="form-label") }}
+                            {{ form.responsable_id(class="form-select") }}
+                            {% for error in form.responsable_id.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <link rel="stylesheet" href="{{ url_for('static', filename='css/herramientas.css') }}">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('herramientas.list_herramientas') }}" class="btn btn-cancel-red">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </a>
+                        {{ form.submit(class="btn btn-navy me-2") }}
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

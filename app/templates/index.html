@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/asignaciones.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cumpleanos.css') }}">
+{% endblock %}
+{% block content %}
+
+
+<div class="row">
+        {% if current_user.sexo == 'M' %}
+            <div class="alert alert-primary" role="alert">
+                <h4 class="mb-1">¡Bienvenido, {{ current_user.nombre }}!</h4>
+                <span>Esperamos que tengas un excelente día lleno de logros.</span>
+            </div>
+        {% elif current_user.sexo == 'F' %}
+            <div class="alert alert-primary" role="alert">
+                <h4 class="mb-1">¡Bienvenida, {{ current_user.nombre }}!</h4>
+                <span>Que tu jornada esté llena de éxitos y sonrisas.</span>
+            </div>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                <h4 class="mb-1">¡Bienvenid@, {{ current_user.nombre }}!</h4>
+                <span>¡Tu presencia hace la diferencia, disfruta tu día!</span>
+            </div>
+        {% endif %}
+        
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="mb-0">Asignaciones para hoy <small class="text-muted">({{ fecha_actual }})</small></h2>
+            <a href="{{ url_for('main.exportar_asignaciones_pdf', fecha=fecha_actual) }}" class="btn btn-danger btn-sm d-print-none">
+                <i class="bi bi-file-earmark-pdf"></i> Exportar a PDF
+            </a>
+        </div>
+        {% if asignaciones_hoy %}
+            <div class="table-responsive">
+                <table class="table table-asignaciones table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-person"></i> Empleado</th>
+                            <th><i class="bi bi-building"></i> Empresa</th>
+                            <th><i class="bi bi-person-badge"></i> Supervisor</th>
+                            <th><i class="bi bi-card-text"></i> Detalles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asignacion in asignaciones_hoy %}
+                        <tr>
+                            <td>{{ asignacion.empleado.nombre }} {{ asignacion.empleado.apellido_paterno }}</td>
+                            <td>{{ asignacion.empresa.nombre }}</td>
+                            <td>{{ asignacion.supervisor.nombre }} {{ asignacion.supervisor.apellido_paterno }}</td>
+                            <td>{{ asignacion.detalles }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+        
+        {% else %}
+        <p>No hay asignaciones para hoy.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Tarjeta de cumpleaños próximos eliminada del inicio -->
+</div>
+{% endblock %}

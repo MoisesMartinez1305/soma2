@@ -1,0 +1,65 @@
+/* empleados.css - Estilos personalizados para la tabla de empleados */
+
+.table-empleados {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    overflow: hidden;
+    font-size: 1.05rem;
+}
+.table-empleados thead {
+    background: linear-gradient(90deg, #001f3f 60%, #0074D9 100%);
+    color: #fff;
+}
+.table-empleados th, .table-empleados td {
+    vertical-align: middle;
+    padding: 0.85rem 1rem;
+    border: none;
+}
+.table-empleados tbody tr {
+    transition: background 0.2s;
+}
+.table-empleados tbody tr:hover {
+    background: #f0f6fa;
+}
+.table-empleados .badge {
+    font-size: 0.95rem;
+    padding: 0.5em 1em;
+    border-radius: 1em;
+}
+.table-empleados .icon {
+    font-size: 1.2rem;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}
+.table-empleados .btn {
+    margin-right: 0.2em;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .table-empleados th, .table-empleados td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.98rem;
+    }
+}
+
+/* Colores personalizados para botones en herramientas */
+.card .btn-navy, .btn-navy {
+    background-color: #001f3f !important;
+    color: #fff !important;
+    border: none !important;
+}
+.card .btn-navy:hover, .card .btn-navy:focus, .btn-navy:hover, .btn-navy:focus {
+    background-color: #001537 !important;
+    color: #fff !important;
+}
+.card .btn-cancel-red, .btn-cancel-red {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    border: none !important;
+}
+.card .btn-cancel-red:hover, .card .btn-cancel-red:focus, .btn-cancel-red:hover, .btn-cancel-red:focus {
+    background-color: #a71d2a !important;
+    color: #fff !important;
+}
