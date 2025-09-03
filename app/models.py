@@ -1,4 +1,8 @@
 from datetime import datetime, date
+from zoneinfo import ZoneInfo
+
+def mexico_now():
+    return datetime.now(ZoneInfo('America/Mexico_City'))
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login_manager
@@ -117,7 +121,7 @@ class Asignacion(db.Model):
 
 class Ubicacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    fecha_hora = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    fecha_hora = db.Column(db.DateTime, nullable=False, default=mexico_now)
     latitud = db.Column(db.Float, nullable=False)
     longitud = db.Column(db.Float, nullable=False)
     tipo = db.Column(db.String(10), nullable=False)  # 'entrada' o 'salida'
